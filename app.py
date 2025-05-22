@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import PyPDF2
+import pdfplumber
 import joblib
 from fpdf import FPDF
 import smtplib
@@ -20,11 +20,13 @@ uploaded_file = st.sidebar.file_uploader("Upload PDF", type=["pdf"])
 if uploaded_file:
     try:
         pdf_text = ""
-        for page in PyPDF2.PdfReader(uploaded_file).pages:
-            pdf_text += page.extract_text()
+        with pdfplumber.open(uploaded_file) as pdf:
+            for page in pdf.pages:
+                pdf_text += page.extract_text()
         st.sidebar.success("✅ PDF uploaded successfully.")
-    except:
-        st.sidebar.error("❌ Error reading the PDF file.")
+    except Exception as e:
+        st.sidebar.error(f"❌ Error reading the PDF file: {e}")
+
 
 st.sidebar.header("🧮 Applicant Input Features")
 age = st.sidebar.slider("Age", 18, 75, 30)
